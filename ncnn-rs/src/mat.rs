@@ -99,7 +99,7 @@ impl Mat {
                     pixel_type.to_int(),
                     width,
                     height,
-                    pixel_type.stride(),
+                    width * pixel_type.stride(),
                     alloc.ptr(),
                 )
             },

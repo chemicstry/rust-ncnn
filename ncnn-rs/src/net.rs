@@ -115,6 +115,7 @@ mod tests {
     fn load_not_exist_model() {
         use crate::net::*;
         let mut net = Net::new();
-        net.load_param("not_exist.param").expect_err("Expected param to be not found");
+        net.load_param("not_exist.param")
+            .expect_err("Expected param to be not found");
     }
 }

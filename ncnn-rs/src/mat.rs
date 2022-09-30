@@ -3,6 +3,36 @@ use core::fmt;
 use ncnn_bind::*;
 use std::os::raw::c_void;
 
+pub enum MatPixelType {
+    BGR,
+    BGRA,
+    GRAY,
+    RGB,
+    RGBA,
+}
+
+impl MatPixelType {
+    fn to_int(&self) -> i32 {
+        match self {
+            MatPixelType::BGR => NCNN_MAT_PIXEL_BGR as _,
+            MatPixelType::BGRA => NCNN_MAT_PIXEL_BGRA as _,
+            MatPixelType::GRAY => NCNN_MAT_PIXEL_GRAY as _,
+            MatPixelType::RGB => NCNN_MAT_PIXEL_RGB as _,
+            MatPixelType::RGBA => NCNN_MAT_PIXEL_RGBA as _,
+        }
+    }
+
+    fn stride(&self) -> i32 {
+        match self {
+            MatPixelType::BGR => 3,
+            MatPixelType::BGRA => 4,
+            MatPixelType::GRAY => 1,
+            MatPixelType::RGB => 3,
+            MatPixelType::RGBA => 4,
+        }
+    }
+}
+
 pub struct Mat {
     ptr: ncnn_mat_t,
 }
@@ -48,6 +78,32 @@ impl Mat {
     ) -> Mat {
         let ptr = unsafe { ncnn_mat_create_external_3d(w, h, c, data, alloc.ptr()) };
         Mat { ptr }
+    }
+
+    pub fn from_pixels(
+        data: &[u8],
+        pixel_type: MatPixelType,
+        width: i32,
+        height: i32,
+        alloc: &ncnn_Allocator,
+    ) -> anyhow::Result<Mat> {
+        let len = width * height * pixel_type.stride();
+        if data.len() != len as _ {
+            anyhow::bail!("Expected data length {}, provided {}", len, data.len());
+        }
+
+        Ok(Mat {
+            ptr: unsafe {
+                ncnn_mat_from_pixels(
+                    data.as_ptr(),
+                    pixel_type.to_int(),
+                    width,
+                    height,
+                    pixel_type.stride(),
+                    alloc.ptr(),
+                )
+            },
+        })
     }
 
     // setter

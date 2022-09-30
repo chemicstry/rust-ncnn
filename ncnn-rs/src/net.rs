@@ -22,20 +22,30 @@ impl Net {
         }
     }
 
-    pub fn load_param(&mut self, path: &str) -> i32 {
+    pub fn load_param(&mut self, path: &str) -> anyhow::Result<()> {
         let c_str = CString::new(path).unwrap();
-        let ret = unsafe { ncnn_net_load_param(self.ptr, c_str.as_ptr()) };
-        ret
+        if unsafe { ncnn_net_load_param(self.ptr, c_str.as_ptr()) } != 0 {
+            anyhow::bail!("Error loading params {}", path);
+        } else {
+            Ok(())
+        }
     }
 
-    pub fn load_model(&mut self, path: &str) -> i32 {
+    pub fn load_model(&mut self, path: &str) -> anyhow::Result<()> {
         let c_str = CString::new(path).unwrap();
-        let ret = unsafe { ncnn_net_load_model(self.ptr, c_str.as_ptr()) };
-        ret
+        if unsafe { ncnn_net_load_model(self.ptr, c_str.as_ptr()) } != 0 {
+            anyhow::bail!("Error loading model {}", path);
+        } else {
+            Ok(())
+        }
     }
 
-    pub fn load_model_datareader(&mut self, dr: &DataReader) -> i32 {
-        unsafe { ncnn_net_load_model_datareader(self.ptr, dr.ptr()) }
+    pub fn load_model_datareader(&mut self, dr: &DataReader) -> anyhow::Result<()> {
+        if unsafe { ncnn_net_load_model_datareader(self.ptr, dr.ptr()) } != 0 {
+            anyhow::bail!("Error loading model from datareader");
+        } else {
+            Ok(())
+        }
     }
 
     pub fn create_extractor(&mut self) -> Extractor<'_> {
@@ -72,16 +82,22 @@ impl<'a> Extractor<'a> {
         unsafe { ncnn_extractor_set_option(self.ptr, opt.ptr()) };
     }
 
-    pub fn input(&mut self, name: &str, mat: &'a crate::mat::Mat) -> i32 {
+    pub fn input(&mut self, name: &str, mat: &'a crate::mat::Mat) -> anyhow::Result<()> {
         let c_str = CString::new(name).unwrap();
-        let stat = unsafe { ncnn_extractor_input(self.ptr, c_str.as_ptr(), mat.ptr()) };
-        stat
+        if unsafe { ncnn_extractor_input(self.ptr, c_str.as_ptr(), mat.ptr()) } != 0 {
+            anyhow::bail!("Error setting input for layer `{}`", name);
+        } else {
+            Ok(())
+        }
     }
 
-    pub fn extract(self, name: &str, mat: &mut crate::mat::Mat) -> i32 {
+    pub fn extract(self, name: &str, mat: &mut crate::mat::Mat) -> anyhow::Result<()> {
         let c_str = CString::new(name).unwrap();
-        let stat = unsafe { ncnn_extractor_extract(self.ptr, c_str.as_ptr(), mat.mut_ptr()) };
-        stat
+        if unsafe { ncnn_extractor_extract(self.ptr, c_str.as_ptr(), mat.mut_ptr()) } != 0 {
+            anyhow::bail!("Error running extract on layer `{}`", name);
+        } else {
+            Ok(())
+        }
     }
 }
 
@@ -98,8 +114,7 @@ mod tests {
     #[test]
     fn load_not_exist_model() {
         use crate::net::*;
-        let net = Net::new();
-        let ret = net.load_param("not_exist.param");
-        assert_ne!(ret, 0);
+        let mut net = Net::new();
+        net.load_param("not_exist.param").expect_err("Expected param to be not found");
     }
 }

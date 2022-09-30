@@ -110,7 +110,7 @@ mod tests {
     #[test]
     fn empty_datareader() {
         use crate::datareader::*;
-        let reader = DataReader::new();
+        let mut reader = DataReader::new();
         reader.use_empty_config();
         // reader.set_read(Some(empty_read));
         // reader.set_scan(Some(empty_scan));

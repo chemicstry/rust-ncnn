@@ -114,11 +114,13 @@ impl Drop for Mat {
 
 #[cfg(test)]
 mod tests {
+    use crate::Allocator;
+
     #[test]
     fn basic_getter_and_setter() {
         use crate::mat::*;
         let alloc = Allocator::new();
-        let m: Mat = Mat::create_3d(224, 224, 3, alloc);
+        let m: Mat = Mat::create_3d(224, 224, 3, &alloc);
         assert_eq!(224, m.get_h());
         assert_eq!(224, m.get_w());
         assert_eq!(3, m.get_c());

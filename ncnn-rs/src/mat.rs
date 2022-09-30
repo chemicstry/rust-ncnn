@@ -106,6 +106,13 @@ impl Mat {
         })
     }
 
+    pub fn substract_mean_normalize(&mut self, mean_vals: &[f32], norm_vals: &[f32]) {
+        let channels = self.get_c() as usize;
+        assert_eq!(mean_vals.len(), channels);
+        assert_eq!(norm_vals.len(), channels);
+        unsafe { ncnn_mat_substract_mean_normalize(self.ptr, mean_vals.as_ptr(), norm_vals.as_ptr()) }
+    }
+
     // setter
     pub fn fill(&mut self, value: f32) {
         unsafe { ncnn_mat_fill_float(self.ptr, value) };

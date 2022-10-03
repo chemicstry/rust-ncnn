@@ -27,6 +27,7 @@ fn fetch() -> io::Result<()> {
 
     let status = Command::new("git")
         .arg("clone")
+        .arg("--recursive")
         .arg("--depth=1")
         .arg("-b")
         .arg(tag)
@@ -45,9 +46,14 @@ fn build() -> io::Result<()> {
     let mut config = Config::new(ncnn_src_dir());
     config.define("NCNN_BUILD_TOOLS", "OFF");
     config.define("NCNN_BUILD_EXAMPLES", "OFF");
+    config.define("NCNN_BUILD_BENCHMARK", "OFF");
     config.define("CMAKE_BUILD_TYPE", "Release");
 
-    if env::var("CARGO_FEATURE_DYNAMIC").is_ok() {
+    if cfg!(feature = "vulkan") {
+        config.define("NCNN_VULKAN", "ON");
+    }
+
+    if cfg!(feature = "dynamic") {
         config.define("NCNN_SHARED_LIB", "ON");
     }
 
@@ -70,7 +76,6 @@ fn search_include(include_paths: &[PathBuf], header: &str) -> String {
 
 fn main() {
     println!("cargo:rerun-if-env-changed=NCNN_DIR");
-    println!("cargo:rerun-if-env-changed=CARGO_FEATURE_DYNAMIC");
 
     let include_paths: Vec<PathBuf> = if let Ok(ncnn_dir) = env::var("NCNN_DIR") {
         // use prebuild ncnn dir
@@ -94,7 +99,7 @@ fn main() {
         vec![output_dir().join("include").join("ncnn")]
     };
 
-    if env::var("CARGO_FEATURE_DYNAMIC").is_ok() {
+    if cfg!(feature = "dynamic") {
         println!("cargo:rustc-link-lib=dylib=ncnn");
     } else {
         println!("cargo:rustc-link-lib=static=ncnn");

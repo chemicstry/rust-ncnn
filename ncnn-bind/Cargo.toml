@@ -13,6 +13,8 @@ keywords = ["binding", "ncnn"]
 [features]
 # Uses dynamic linking instead of static. May require cleaning `target/` dir after change.
 dynamic = []
+# Enable vulkan backend.
+vulkan = []
 
 [dependencies]
 libc = "0.2"

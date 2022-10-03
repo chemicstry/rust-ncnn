@@ -126,15 +126,11 @@ fn main() {
         println!("cargo:rustc-link-lib=dylib=pthread");
     }
 
-    let mut builder = bindgen::Builder::default();
+    let header = search_include(&include_paths, "c_api.h");
+    println!("cargo:rerun-if-changed={}", header);
 
-    let files = vec!["c_api.h"];
-    for file in files {
-        builder = builder.header(search_include(&include_paths, file));
-    }
-
-    let bindings = builder
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+    let bindings = bindgen::Builder::default()
+        .header(header)
         .allowlist_type("regex")
         .allowlist_function("ncnn.*")
         .allowlist_var("NCNN.*")

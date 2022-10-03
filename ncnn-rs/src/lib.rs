@@ -1,11 +1,13 @@
 mod allocator;
 mod datareader;
+mod extractor;
 mod mat;
 mod net;
 mod option;
 
 pub use allocator::*;
 pub use datareader::*;
+pub use extractor::*;
 pub use mat::*;
 pub use net::*;
 pub use option::*;

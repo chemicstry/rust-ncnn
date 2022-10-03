@@ -1,7 +1,7 @@
 use crate::datareader::DataReader;
+use crate::Extractor;
 use ncnn_bind::*;
 use std::ffi::CString;
-use std::marker::PhantomData;
 
 pub struct Net {
     ptr: ncnn_net_t,
@@ -9,11 +9,9 @@ pub struct Net {
 
 impl Net {
     pub fn new() -> Net {
-        let ptr;
-        unsafe {
-            ptr = ncnn_net_create();
+        Net {
+            ptr: unsafe { ncnn_net_create() },
         }
-        Net { ptr }
     }
 
     pub fn set_option(&mut self, opt: &crate::option::Option) {
@@ -61,50 +59,6 @@ impl Drop for Net {
     fn drop(&mut self) {
         unsafe {
             ncnn_net_destroy(self.ptr);
-        }
-    }
-}
-
-pub struct Extractor<'a> {
-    ptr: ncnn_extractor_t,
-    _phantom: PhantomData<&'a ()>,
-}
-
-impl<'a> Extractor<'a> {
-    fn from_ptr(ptr: ncnn_extractor_t) -> Self {
-        Self {
-            ptr,
-            _phantom: PhantomData::default(),
-        }
-    }
-
-    pub fn set_option(&mut self, opt: &crate::option::Option) {
-        unsafe { ncnn_extractor_set_option(self.ptr, opt.ptr()) };
-    }
-
-    pub fn input(&mut self, name: &str, mat: &'a crate::mat::Mat) -> anyhow::Result<()> {
-        let c_str = CString::new(name).unwrap();
-        if unsafe { ncnn_extractor_input(self.ptr, c_str.as_ptr(), mat.ptr()) } != 0 {
-            anyhow::bail!("Error setting input for layer `{}`", name);
-        } else {
-            Ok(())
-        }
-    }
-
-    pub fn extract(self, name: &str, mat: &mut crate::mat::Mat) -> anyhow::Result<()> {
-        let c_str = CString::new(name).unwrap();
-        if unsafe { ncnn_extractor_extract(self.ptr, c_str.as_ptr(), mat.mut_ptr()) } != 0 {
-            anyhow::bail!("Error running extract on layer `{}`", name);
-        } else {
-            Ok(())
-        }
-    }
-}
-
-impl<'a> Drop for Extractor<'a> {
-    fn drop(&mut self) {
-        unsafe {
-            ncnn_extractor_destroy(self.ptr);
         }
     }
 }

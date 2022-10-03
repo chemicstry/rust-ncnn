@@ -48,6 +48,7 @@ fn build() -> io::Result<()> {
     config.define("NCNN_BUILD_EXAMPLES", "OFF");
     config.define("NCNN_BUILD_BENCHMARK", "OFF");
     config.define("CMAKE_BUILD_TYPE", "Release");
+    config.cflag("-std=c++14");
 
     if cfg!(feature = "vulkan") {
         config.define("NCNN_VULKAN", "ON");

@@ -2,29 +2,36 @@ extern crate bindgen;
 use cmake::Config;
 
 use std::env;
-use std::fs::{self};
-use std::io::{self};
+use std::fs;
+use std::io;
 use std::path::PathBuf;
 use std::process::Command;
 use std::str;
 
-fn fetch() -> io::Result<()> {
-    let output_base_path = output();
-    let clone_dest_dir = "ncnn-master";
+fn output_dir() -> PathBuf {
+    PathBuf::from(env::var("OUT_DIR").unwrap())
+}
 
-    let target_dir = output_base_path.join(&clone_dest_dir);
+fn ncnn_src_dir() -> PathBuf {
+    output_dir().join("ncnn-src")
+}
+
+fn fetch() -> io::Result<()> {
+    let target_dir = ncnn_src_dir();
+
     if target_dir.exists() {
         return Ok(());
     }
-    let _ = std::fs::remove_dir_all(output_base_path.join(&clone_dest_dir));
+
+    let tag = "20220729";
+
     let status = Command::new("git")
-        .current_dir(&output_base_path)
         .arg("clone")
         .arg("--depth=1")
         .arg("-b")
-        .arg("rust-ncnn")
-        .arg("https://github.com/tpoisonooo/ncnn")
-        .arg(&clone_dest_dir)
+        .arg(tag)
+        .arg("https://github.com/Tencent/ncnn")
+        .arg(&target_dir)
         .status()?;
 
     if status.success() {
@@ -35,38 +42,19 @@ fn fetch() -> io::Result<()> {
 }
 
 fn build() -> io::Result<()> {
-    let dst;
-    if env::var("CARGO_FEATURE_STATIC").is_ok() {
-        dst = Config::new(ncnndir())
-            .define("NCNN_BUILD_TOOLS", "OFF")
-            .define("NCNN_BUILD_EXAMPLES", "OFF")
-            .define("CMAKE_BUILD_TYPE", "Release")
-            // .define(
-            //     "CMAKE_TOOLCHAIN_FILE",
-            //     ncnndir()
-            //         .join("toolchains/host.gcc.toolchain.cmake")
-            //         .to_str()
-            //         .unwrap(),
-            // )
-            .cflag("-std=c++14")
-            .build();
-    } else {
-        dst = Config::new(ncnndir())
-            .define("NCNN_BUILD_TOOLS", "OFF")
-            .define("NCNN_BUILD_EXAMPLES", "OFF")
-            .define("NCNN_SHARED_LIB", "ON")
-            .define("CMAKE_BUILD_TYPE", "Release")
-            // .define(
-            //     "CMAKE_TOOLCHAIN_FILE",
-            //     ncnndir()
-            //         .join("toolchains/host.gcc.toolchain.cmake")
-            //         .to_str()
-            //         .unwrap(),
-            // )
-            .cflag("-std=c++14")
-            .build();
+    let mut config = Config::new(ncnn_src_dir());
+    config.define("NCNN_BUILD_TOOLS", "OFF");
+    config.define("NCNN_BUILD_EXAMPLES", "OFF");
+    config.define("CMAKE_BUILD_TYPE", "Release");
+
+    if env::var("CARGO_FEATURE_DYNAMIC").is_ok() {
+        config.define("NCNN_SHARED_LIB", "ON");
     }
+
+    let dst = config.build();
+
     println!("cargo:rustc-link-search=native={}", dst.display());
+
     Ok(())
 }
 
@@ -80,29 +68,9 @@ fn search_include(include_paths: &[PathBuf], header: &str) -> String {
     format!("/usr/include/{}", header)
 }
 
-fn output() -> PathBuf {
-    PathBuf::from(env::var("OUT_DIR").unwrap())
-}
-
-fn ncnndir() -> PathBuf {
-    output().join("ncnn-master")
-}
-
-fn link_to_libraries() {
-    if env::var("CARGO_FEATURE_STATIC").is_ok() {
-        println!("cargo:rustc-link-lib=static=ncnn");
-    } else {
-        println!("cargo:rustc-link-lib=dylib=ncnn");
-    }
-
-    if !cfg!(windows) {
-        println!("cargo:rustc-link-lib=dylib=pthread");
-    }
-}
-
 fn main() {
     println!("cargo:rerun-if-env-changed=NCNN_DIR");
-    println!("cargo:rerun-if-env-changed=CARGO_FEATURE_STATIC");
+    println!("cargo:rerun-if-env-changed=CARGO_FEATURE_DYNAMIC");
 
     let include_paths: Vec<PathBuf> = if let Ok(ncnn_dir) = env::var("NCNN_DIR") {
         // use prebuild ncnn dir
@@ -120,13 +88,22 @@ fn main() {
 
         println!(
             "cargo:rustc-link-search=native={}",
-            output().join("lib").to_string_lossy()
+            output_dir().join("lib").to_string_lossy()
         );
 
-        vec![output().join("include").join("ncnn")]
+        vec![output_dir().join("include").join("ncnn")]
     };
 
-    link_to_libraries();
+    if env::var("CARGO_FEATURE_DYNAMIC").is_ok() {
+        println!("cargo:rustc-link-lib=dylib=ncnn");
+    } else {
+        println!("cargo:rustc-link-lib=static=ncnn");
+    }
+
+    if !cfg!(windows) {
+        println!("cargo:rustc-link-lib=dylib=pthread");
+    }
+
     let mut builder = bindgen::Builder::default();
 
     let files = vec!["c_api.h"];
@@ -139,8 +116,7 @@ fn main() {
         .generate()
         .expect("Unable to generate bindings");
 
-    let out_path = output();
     bindings
-        .write_to_file(out_path.join("bindings.rs"))
+        .write_to_file(output_dir().join("bindings.rs"))
         .expect("Couldn't write bindings!");
 }

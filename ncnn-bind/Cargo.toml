@@ -10,7 +10,9 @@ homepage = "https://github.com/tpoisonooo/rust-ncnn"
 repository = "https://github.com/tpoisonooo/rust-ncnn"
 keywords = ["binding", "ncnn"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+# Uses dynamic linking instead of static. May require cleaning `target/` dir after change.
+dynamic = []
 
 [dependencies]
 libc = "0.2"

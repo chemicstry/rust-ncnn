@@ -54,7 +54,7 @@ fn build() -> io::Result<()> {
         config.define("NCNN_VULKAN", "ON");
     }
 
-    if cfg!(feature = "dynamic") {
+    if use_dynamic_linking() {
         config.define("NCNN_SHARED_LIB", "ON");
     }
 

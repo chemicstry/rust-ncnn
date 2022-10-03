@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["anyhow","libc","ncnn_bind","ncnn_rs"];

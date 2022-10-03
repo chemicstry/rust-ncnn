@@ -2,6 +2,10 @@
 
 ncnn Rust API.
 
+Docs:
+- [ncnn-bind](https://chemicstry.github.io/rust-ncnn/ncnn_bind/index.html)
+- [ncnn-rs](https://chemicstry.github.io/rust-ncnn/ncnn_rs/index.html)
+
 ## Prequisition
 
 ### CMake >= 3.12

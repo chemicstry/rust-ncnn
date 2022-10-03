@@ -118,6 +118,10 @@ fn main() {
 
     let bindings = builder
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .allowlist_type("regex")
+        .allowlist_function("ncnn.*")
+        .allowlist_var("NCNN.*")
+        .allowlist_type("ncnn.*")
         .generate()
         .expect("Unable to generate bindings");
 

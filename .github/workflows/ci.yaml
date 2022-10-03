@@ -36,8 +36,13 @@ jobs:
       - name: Generate docs
         uses: actions-rs/cargo@v1
         with:
-          command: doc
-      - name: Publish
-        uses: JamesIves/github-pages-deploy-action@v4
+          command: doc --no-deps
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          folder: target/doc
+          path: 'target/doc'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1

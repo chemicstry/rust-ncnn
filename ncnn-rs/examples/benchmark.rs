@@ -1,7 +1,7 @@
-use ncnn_rs::datareader::DataReader;
-use ncnn_rs::mat::Mat;
-use ncnn_rs::net::Net;
-use ncnn_rs::option::Option as ncnn_option;
+use ncnn_rs::DataReader;
+use ncnn_rs::Mat;
+use ncnn_rs::Net;
+use ncnn_rs::Option as ncnn_option;
 use std::time;
 
 fn param_path() -> std::path::PathBuf {
@@ -47,7 +47,7 @@ fn main() -> anyhow::Result<()> {
     let mut opt = ncnn_option::new();
     opt.set_num_threads(1);
 
-    let alloc = ncnn_rs::allocator::Allocator::new();
+    let alloc = ncnn_rs::Allocator::new();
 
     benchmark(
         "squeezenet.param",

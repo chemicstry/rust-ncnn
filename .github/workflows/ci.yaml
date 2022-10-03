@@ -14,10 +14,7 @@ jobs:
         with:
           toolchain: stable
       - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+        run: cargo -vv build --release
       - name: Test
         uses: actions-rs/cargo@v1
         with:

@@ -24,7 +24,7 @@ $ sudo apt install clang-3.9 libclang-3.9-dev
 
 Static ncnn build from source:
 ```bash
-$ cd rust-ncnn/ncnn-rs/
+$ cd rust-ncnn/
 $ cargo run --example get_version
 ```
 

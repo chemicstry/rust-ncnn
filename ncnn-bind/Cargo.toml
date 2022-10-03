@@ -10,9 +10,11 @@ repository = "https://github.com/tpoisonooo/rust-ncnn"
 keywords = ["binding", "ncnn"]
 
 [features]
-# Uses dynamic linking instead of static. May require cleaning `target/` dir after change.
+# Explicitly use static linking
+static = []
+# Explicitly use dynamic linking
 dynamic = []
-# Enable vulkan backend.
+# Enable vulkan backend
 vulkan = []
 
 [dependencies]

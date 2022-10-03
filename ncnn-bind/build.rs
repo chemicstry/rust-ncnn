@@ -75,6 +75,23 @@ fn search_include(include_paths: &[PathBuf], header: &str) -> String {
     format!("/usr/include/{}", header)
 }
 
+fn use_dynamic_linking() -> bool {
+    if cfg!(feature = "static") && cfg!(feature = "dynamic") {
+        panic!("Both `static` and `dynamic` features are specified. Only one can be used at a time.");
+    } else if cfg!(feature = "static") {
+        false
+    } else if cfg!(feature = "dynamic") {
+        true
+    } else {
+        // By default use static linking for windows and dynamic for linux
+        if cfg!(windows) {
+            false
+        } else {
+            true
+        }
+    }
+}
+
 fn main() {
     println!("cargo:rerun-if-env-changed=NCNN_DIR");
 
@@ -100,7 +117,7 @@ fn main() {
         vec![output_dir().join("include").join("ncnn")]
     };
 
-    if cfg!(feature = "dynamic") {
+    if use_dynamic_linking() {
         println!("cargo:rustc-link-lib=dylib=ncnn");
     } else {
         println!("cargo:rustc-link-lib=static=ncnn");

@@ -5,7 +5,6 @@ authors = ["tpoisonooo <khj.application@aliyun.com>"]
 edition = "2021"
 description = "ncnn Rust binding"
 license = "Apache-2.0"
-license-file = "LICENSE.txt"
 homepage = "https://github.com/tpoisonooo/rust-ncnn"
 repository = "https://github.com/tpoisonooo/rust-ncnn"
 keywords = ["binding", "ncnn"]

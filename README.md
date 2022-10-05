@@ -2,9 +2,22 @@
 
 ncnn Rust API.
 
-Docs:
+## Docs
+
 - [ncnn-bind](https://chemicstry.github.io/rust-ncnn/ncnn_bind/index.html)
 - [ncnn-rs](https://chemicstry.github.io/rust-ncnn/ncnn_rs/index.html)
+
+## About this fork
+
+This is a fork of the original [tpoisonooo/rust-ncnn](https://github.com/tpoisonooo/rust-ncnn) with the following changes:
+- Fixed multiple safety bugs.
+- Updated to newest upstream NCNN.
+- Default library builds on both Windows and Linux.
+- Added Vulkan support.
+- Expanded safe API and renamed existing methods to rust conventions.
+- Automatically generated documentation.
+
+I am not planning to release this on `crates.io` to reduce dead crate clutter, unless the original author wants to merge these changes. Instead, this library can be used as a git dependency with `ncnn-rs = { git = "https://github.com/chemicstry/rust-ncnn" }`
 
 ## Prequisition
 

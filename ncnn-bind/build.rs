@@ -111,10 +111,6 @@ fn link_vulkan() {
         _ => "vulkan",
     };
     println!("cargo:rustc-link-lib={}", lib);
-    println!("cargo:rustc-link-lib=glslang");
-    println!("cargo:rustc-link-lib=SPIRV");
-    println!("cargo:rustc-link-lib=OGLCompiler");
-    println!("cargo:rustc-link-lib=OSDependent");
 }
 
 fn main() {

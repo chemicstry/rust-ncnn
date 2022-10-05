@@ -76,7 +76,9 @@ fn search_include(include_paths: &[PathBuf], header: &str) -> String {
 
 fn use_dynamic_linking() -> bool {
     if cfg!(feature = "static") && cfg!(feature = "dynamic") {
-        panic!("Both `static` and `dynamic` features are specified. Only one can be used at a time.");
+        panic!(
+            "Both `static` and `dynamic` features are specified. Only one can be used at a time."
+        );
     } else if cfg!(feature = "static") {
         false
     } else if cfg!(feature = "dynamic") {
@@ -89,6 +91,30 @@ fn use_dynamic_linking() -> bool {
             true
         }
     }
+}
+
+fn link_vulkan() {
+    let target_family = env::var("CARGO_CFG_TARGET_FAMILY").unwrap();
+    let target_pointer_width = env::var("CARGO_CFG_TARGET_POINTER_WIDTH").unwrap();
+
+    println!("cargo:rerun-if-env-changed=VULKAN_SDK");
+    if let Ok(var) = env::var("VULKAN_SDK") {
+        let suffix = match (&*target_family, &*target_pointer_width) {
+            ("windows", "32") => "Lib32",
+            ("windows", "64") => "Lib",
+            _ => "lib",
+        };
+        println!("cargo:rustc-link-search={}/{}", var, suffix);
+    }
+    let lib = match &*target_family {
+        "windows" => "vulkan-1",
+        _ => "vulkan",
+    };
+    println!("cargo:rustc-link-lib={}", lib);
+    println!("cargo:rustc-link-lib=glslang");
+    println!("cargo:rustc-link-lib=SPIRV");
+    println!("cargo:rustc-link-lib=OGLCompiler");
+    println!("cargo:rustc-link-lib=OSDependent");
 }
 
 fn main() {
@@ -124,6 +150,10 @@ fn main() {
 
     if !cfg!(windows) {
         println!("cargo:rustc-link-lib=dylib=pthread");
+    }
+
+    if cfg!(feature = "vulkan") {
+        link_vulkan();
     }
 
     let header = search_include(&include_paths, "c_api.h");

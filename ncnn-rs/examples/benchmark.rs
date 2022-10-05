@@ -45,6 +45,7 @@ fn benchmark(name: &str, mut mat_in: Mat, opt: &ncnn_option, out: &str) -> anyho
 fn main() -> anyhow::Result<()> {
     let mut opt = ncnn_option::new();
     opt.set_num_threads(1);
+    opt.set_vulkan_compute(true);
 
     benchmark(
         "squeezenet.param",

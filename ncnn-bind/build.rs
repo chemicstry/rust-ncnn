@@ -8,12 +8,18 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::str;
 
+const DEFAULT_NCNN_TAG: &'static str = "20220729";
+
 fn output_dir() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
 
 fn ncnn_src_dir() -> PathBuf {
-    output_dir().join("ncnn-src")
+    output_dir().join(format!("ncnn-src-{}", ncnn_tag()))
+}
+
+fn ncnn_tag() -> String {
+    env::var("NCNN_TAG").unwrap_or(DEFAULT_NCNN_TAG.to_string())
 }
 
 fn fetch() -> io::Result<()> {
@@ -23,14 +29,12 @@ fn fetch() -> io::Result<()> {
         return Ok(());
     }
 
-    let tag = "20220729";
-
     let status = Command::new("git")
         .arg("clone")
         .arg("--recursive")
         .arg("--depth=1")
         .arg("-b")
-        .arg(tag)
+        .arg(ncnn_tag())
         .arg("https://github.com/Tencent/ncnn")
         .arg(&target_dir)
         .status()?;
@@ -115,6 +119,7 @@ fn link_vulkan() {
 
 fn main() {
     println!("cargo:rerun-if-env-changed=NCNN_DIR");
+    println!("cargo:rerun-if-env-changed=NCNN_TAG");
 
     let include_paths: Vec<PathBuf> = if let Ok(ncnn_dir) = env::var("NCNN_DIR") {
         // use prebuild ncnn dir
@@ -153,7 +158,6 @@ fn main() {
     }
 
     let header = search_include(&include_paths, "c_api.h");
-    println!("cargo:rerun-if-changed={}", header);
 
     let bindings = bindgen::Builder::default()
         .header(header)

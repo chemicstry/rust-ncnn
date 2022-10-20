@@ -45,6 +45,11 @@ $ cd rust-ncnn/
 $ cargo run --example get_version
 ```
 
+Use specific NCNN release:
+```bash
+$ export NCNN_TAG="20220420"
+```
+
 Use prebuilt ncnn:
 ```bash
 $ export NCNN_DIR="/path/to/your/ncnn/lib"

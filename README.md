@@ -1,23 +1,23 @@
 # rust-ncnn
 
-ncnn Rust API.
+Rust bindings for the NCNN neural network framework.
 
 ## Docs
 
-- [ncnn-bind](https://chemicstry.github.io/rust-ncnn/ncnn_bind/index.html)
-- [ncnn-rs](https://chemicstry.github.io/rust-ncnn/ncnn_rs/index.html)
+- [ncnn-bind](https://lit-robotics.github.io/rust-ncnn/ncnn_bind/index.html) - low-level bindings
+- [ncnn-rs](https://lit-robotics.github.io/rust-ncnn/ncnn_rs/index.html) - safe NCNN abstractions
 
 ## About this fork
 
 This is a fork of the original [tpoisonooo/rust-ncnn](https://github.com/tpoisonooo/rust-ncnn) with the following changes:
 - Fixed multiple safety bugs.
-- Updated to newest upstream NCNN.
+- Updated to the newest upstream NCNN.
 - Default library builds on both Windows and Linux.
 - Added Vulkan support.
 - Expanded safe API and renamed existing methods to rust conventions.
 - Automatically generated documentation.
 
-I am not planning to release this on `crates.io` to reduce dead crate clutter, unless the original author wants to merge these changes. Instead, this library can be used as a git dependency with `ncnn-rs = { git = "https://github.com/chemicstry/rust-ncnn" }`
+I am not planning to release this on `crates.io` to reduce dead crate clutter, unless the original author wants to merge these changes or this fork receives more interest. Instead, this library can be used as a git dependency with `ncnn-rs = { git = "https://github.com/lit-robotics/rust-ncnn" }`
 
 ## Prequisition
 
@@ -31,7 +31,7 @@ $ pip install cmake --upgrade --user
 
 ### Clang >= 3.9
 
-Rust bindgen uses `clang` to generate `bindings.rs` with `c_api.h`.
+Rust bindgen uses `clang` to generate `bindings.rs` from `c_api.h`.
 
 ```bash
 $ sudo apt install clang-3.9 libclang-3.9-dev
@@ -39,7 +39,7 @@ $ sudo apt install clang-3.9 libclang-3.9-dev
 
 ## Build
 
-Static ncnn build from source:
+NCNN build from source:
 ```bash
 $ cd rust-ncnn/
 $ cargo run --example get_version

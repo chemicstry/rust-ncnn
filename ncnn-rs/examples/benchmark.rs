@@ -43,9 +43,9 @@ fn benchmark(name: &str, mut mat_in: Mat, opt: &ncnn_option, out: &str) -> anyho
 }
 
 fn main() -> anyhow::Result<()> {
-    let mut opt = ncnn_option::new();
-    opt.set_num_threads(1);
-    opt.set_vulkan_compute(true);
+    let opt = ncnn_option::new();
+    // opt.set_num_threads(8);
+    // opt.set_vulkan_compute(false);
 
     benchmark(
         "squeezenet.param",
@@ -252,7 +252,19 @@ fn main() -> anyhow::Result<()> {
         "output",
     )?;
 
-    // benchmark("nanodet_m.param", Mat::new_3d(320, 320, 3, None), &opt, "output")?;
+    benchmark(
+        "nanodet-plus-m_416.param",
+        Mat::new_3d(416, 416, 3, None),
+        &opt,
+        "output",
+    )?;
+
+    benchmark(
+        "nanodet-plus-m_416-int8.param",
+        Mat::new_3d(416, 416, 3, None),
+        &opt,
+        "output",
+    )?;
 
     Ok(())
 }
